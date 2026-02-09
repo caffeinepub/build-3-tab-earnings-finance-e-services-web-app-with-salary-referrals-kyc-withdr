@@ -1,0 +1,69 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-update-the-tap-to-earn-screen-so-taps-feel-instant-even-during-rapid-tapping-by-updating-the-displayed-coin-balance-tap-count-immediately-on-tap-optimistic-ui-instead-of-waiting-for-each-network-round-trip",
+      "featureTitle": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "files": [
+        "frontend/src/hooks/queries/useTapToEarn.ts",
+        "frontend/src/pages/earn/TapToEarnPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-reduce-backend-calls-during-rapid-tapping-by-batching-taps-on-the-client-e-g-queue-multiple-taps-locally-and-send-them-to-the-backend-in-periodic-flushes-while-keeping-the-same-user-visible-rules-and-ban-restrictions",
+      "featureTitle": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "files": [
+        "frontend/src/hooks/queries/useTapToEarn.ts",
+        "frontend/src/hooks/useTapBatching.ts",
+        "frontend/src/pages/earn/TapToEarnPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-ad-trigger-behavior-on-the-tap-to-earn-page-so-thresholds-are-evaluated-against-the-user-s-effective-tap-count-during-optimistic-batched-tapping-so-ads-still-trigger-at-the-correct-moments-during-fast-taps",
+      "featureTitle": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "files": [
+        "frontend/src/hooks/queries/useTapToEarn.ts",
+        "frontend/src/pages/earn/TapToEarnPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

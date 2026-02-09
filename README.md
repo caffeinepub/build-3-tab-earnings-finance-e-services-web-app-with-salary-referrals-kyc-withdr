@@ -1,2 +1,3 @@
-# build-3-tab-earnings-finance-e-services-web-app-with-salary-referrals-kyc-withdr
-Exported from Caffeine project: Improve Tap-to-Earn tap responsiveness (faster tapping)
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

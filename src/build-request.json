@@ -1,0 +1,104 @@
+{
+  "kind": "build_request",
+  "title": "Improve Tap-to-Earn tap responsiveness (faster tapping)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Earn section update koro tap ta aro fast tap kora jabe amon kore dao"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the user taps the coin repeatedly, the on-screen coin balance increments immediately with no visible lag from network requests.",
+        "The UI remains responsive while tapping quickly (no repeated 'Tapping...' blocking that prevents fast consecutive taps).",
+        "If a tap submission fails, the UI rolls back or reconciles with the server state without leaving the balance permanently incorrect."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "tap ta aro fast tap kora jabe"
+        ]
+      },
+      "acceptanceCriteria": [
+        "During rapid tapping, the frontend does not issue one backend mutation per tap; taps are sent in batches.",
+        "Banned users still cannot tap (no local increment occurs when banned).",
+        "After batching flush completes, the server-backed Tap-to-Earn state (fetched via getTapToEarnState) matches the optimistic UI within a short reconciliation window."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including basic validation (e.g., non-zero count and a reasonable max per call) and applying the existing authorization + ban checks.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "tap ta aro fast tap kora jabe amon kore dao"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new shared backend function exists that accepts a tap count and increments TapToEarnState accordingly in a single call.",
+        "The function enforces the same permission check as registerTap and calls the existing ban check logic (banned users are rejected).",
+        "Invalid counts (e.g., 0 or excessively large) are rejected with a clear trap message.",
+        "Existing registerTap and claimTapToEarnCoins behavior remains unchanged for compatibility."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Earn section update"
+        ]
+      },
+      "acceptanceCriteria": [
+        "With rapid taps, the small-ad trigger still occurs exactly when the effective tap count reaches a multiple of 45, and the big-ad trigger occurs exactly at multiples of 280 (no missed triggers due to batching).",
+        "Ads do not double-trigger for the same threshold count (existing de-duplication behavior continues to work).",
+        "While an ad is showing, tapping is still blocked as it is today."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any files under frontend/immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui).",
+    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
+    "Do not introduce external databases, third-party auth providers, WebSockets, or non-supported backend languages."
+  ],
+  "nonGoals": [
+    "Changing the overall Earn tab navigation or adding new earning features beyond improving tap responsiveness.",
+    "Redesigning the global theme/palette (only responsiveness behavior changes are in scope).",
+    "Implementing new ad providers or changing Monetag integration beyond ensuring thresholds still work with batching."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

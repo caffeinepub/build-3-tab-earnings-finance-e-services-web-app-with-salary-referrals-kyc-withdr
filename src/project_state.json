@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [
+    "Earn section tap responsiveness is slow; needs improvement"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-update-the-tap-to-earn-screen-so-taps-feel-instant-even-during-rapid-tapping-by-updating-the-displayed-coin-balance-tap-count-immediately-on-tap-optimistic-ui-instead-of-waiting-for-each-network-round-trip",
+      "title": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-backend-calls-during-rapid-tapping-by-batching-taps-on-the-client-e-g-queue-multiple-taps-locally-and-send-them-to-the-backend-in-periodic-flushes-while-keeping-the-same-user-visible-rules-and-ban-restrictions",
+      "title": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-ad-trigger-behavior-on-the-tap-to-earn-page-so-thresholds-are-evaluated-against-the-user-s-effective-tap-count-during-optimistic-batched-tapping-so-ads-still-trigger-at-the-correct-moments-during-fast-taps",
+      "title": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Update Earn section to make taps respond faster / improve tap responsiveness",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including basic validation (e.g., non-zero count and a reasonable max per call) and applying the existing authorization + ban checks.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Improve Tap-to-Earn tap responsiveness (faster tapping)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

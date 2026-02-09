@@ -1,0 +1,75 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Tap-to-Earn: Optimistic UI + client batching for faster tapping",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Make Tap-to-Earn taps feel instant via optimistic UI updates (immediate coinBalance/tapCount increments) with reconciliation on failure.",
+      "acceptanceCriteria": [
+        "When the user taps the coin repeatedly, the on-screen coin balance increments immediately with no visible lag from network requests.",
+        "The UI remains responsive while tapping quickly (no repeated 'Tapping...' blocking that prevents fast consecutive taps).",
+        "If a tap submission fails, the UI rolls back or reconciles with the server state without leaving the balance permanently incorrect."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "operation": "modify",
+          "description": "Add an optimistic update path for Tap-to-Earn state by updating the React Query cache for ['tapToEarnState'] immediately when a tap is registered locally; include a reconciliation strategy (invalidate/refetch on error and after flush) to prevent permanent divergence."
+        },
+        {
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "operation": "modify",
+          "description": "Stop using per-tap mutation pending state to block rapid taps; render coin balance/tap count from the optimistic effective state (server state + local pending taps) so the displayed balance increments immediately while preserving existing bans/ad-blocking behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Batch rapid taps on the client and flush periodically to reduce backend calls while preserving ban restrictions and reconciling state.",
+      "acceptanceCriteria": [
+        "During rapid tapping, the frontend does not issue one backend mutation per tap; taps are sent in batches.",
+        "Banned users still cannot tap (no local increment occurs when banned).",
+        "After batching flush completes, the server-backed Tap-to-Earn state (fetched via getTapToEarnState) matches the optimistic UI within a short reconciliation window."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useTapBatching.ts",
+          "operation": "create",
+          "description": "Create a small client-side tap batching helper (queue + periodic flush + max-per-flush guard) that accepts local tap events, updates optimistic state immediately, and flushes aggregated counts via the existing backendInterface registerTaps call; include retry/backoff or failure handling that triggers reconciliation (query invalidation/refetch)."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "operation": "modify",
+          "description": "Integrate the batching helper: expose a Tap-to-Earn 'tap' action that only enqueues locally and schedules flushes (instead of one network call per tap), uses actor.registerTaps for batched submission, and invalidates ['tapToEarnState'] after successful flush (and on failure) to reconcile with getTapToEarnState."
+        },
+        {
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "operation": "modify",
+          "description": "Wire TapToEarnPage to use the new batched tap action; ensure banned users are blocked before any local increment/enqueue occurs, and keep tapping enabled during background flushing (only block tapping when an ad is showing, as today)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure ad triggers evaluate against the effective (optimistic + batched) tap count and still trigger exactly at thresholds without duplication.",
+      "acceptanceCriteria": [
+        "With rapid taps, the small-ad trigger still occurs exactly when the effective tap count reaches a multiple of 45, and the big-ad trigger occurs exactly at multiples of 280 (no missed triggers due to batching).",
+        "Ads do not double-trigger for the same threshold count (existing de-duplication behavior continues to work).",
+        "While an ad is showing, tapping is still blocked as it is today."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "operation": "modify",
+          "description": "Update ad-threshold evaluation to use the effective optimistic tap count (including locally queued taps) rather than only the last server-fetched tapCount; when the effective count jumps by multiple taps between renders, detect threshold crossings and trigger ads for the exact multiple reached, while continuing to de-duplicate via triggeredAdsRef and keeping tap blocking active during ad display."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "operation": "modify",
+          "description": "Expose the effective tapCount/coinBalance (server + pending) to the UI in a stable way (e.g., derived values from query cache + batching queue state) so TapToEarnPage can reliably evaluate ad thresholds during rapid/optimistic tapping."
+        }
+      ]
+    }
+  ]
+}
