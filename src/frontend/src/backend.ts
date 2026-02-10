@@ -203,6 +203,7 @@ export interface MicroLoanRequest {
 }
 export interface TapToEarnState {
     coinBalance: bigint;
+    remainderTaps: bigint;
     tapCount: bigint;
 }
 export interface _CaffeineStorageRefillResult {

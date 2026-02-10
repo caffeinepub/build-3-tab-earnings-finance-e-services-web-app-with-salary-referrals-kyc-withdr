@@ -12,7 +12,9 @@ import MixinStorage "blob-storage/Mixin";
 import Time "mo:core/Time";
 import Int "mo:core/Int";
 import Nat "mo:core/Nat";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -166,6 +168,7 @@ actor {
   type TapToEarnState = {
     coinBalance : Nat;
     tapCount : Nat;
+    remainderTaps : Nat; // New field for leftover taps
   };
 
   // State storage
@@ -217,6 +220,7 @@ actor {
         {
           coinBalance = 0;
           tapCount = 0;
+          remainderTaps = 0;
         };
       };
     };
@@ -234,6 +238,7 @@ actor {
         {
           coinBalance = 0;
           tapCount = 0;
+          remainderTaps = 0;
         };
       };
     };
@@ -241,6 +246,7 @@ actor {
     let newState = {
       coinBalance = currentState.coinBalance + 1;
       tapCount = currentState.tapCount + 1;
+      remainderTaps = currentState.remainderTaps;
     };
 
     tapToEarnStates.add(caller, newState);
@@ -266,6 +272,7 @@ actor {
         {
           coinBalance = 0;
           tapCount = 0;
+          remainderTaps = 0;
         };
       };
     };
@@ -273,6 +280,7 @@ actor {
     let newState = {
       coinBalance = currentState.coinBalance + tapCount;
       tapCount = currentState.tapCount + tapCount;
+      remainderTaps = currentState.remainderTaps;
     };
 
     tapToEarnStates.add(caller, newState);
@@ -290,6 +298,7 @@ actor {
         {
           coinBalance = 0;
           tapCount = 0;
+          remainderTaps = 0;
         };
       };
     };
@@ -299,6 +308,7 @@ actor {
       {
         coinBalance = currentState.coinBalance;
         tapCount = 0;
+        remainderTaps = currentState.remainderTaps;
       },
     );
   };
@@ -315,29 +325,31 @@ actor {
         {
           coinBalance = 0;
           tapCount = 0;
+          remainderTaps = 0;
         };
       };
     };
 
-    let coinsToAdd = state.coinBalance;
+    let totalTaps = state.coinBalance + state.remainderTaps;
+    let fullThousands = totalTaps / 1000;
+    let remainder = totalTaps % 1000;
+    let addedBalance = fullThousands * 8;
 
     // Update user's account balance
     let currentBalance = switch (accounts.get(caller)) {
       case (?balance) { balance };
       case (null) { 0 };
     };
-    accounts.add(caller, currentBalance + coinsToAdd);
+    accounts.add(caller, currentBalance + addedBalance);
 
-    // Reset tap-to-earn balance and counters
-    tapToEarnStates.add(
-      caller,
-      {
-        coinBalance = 0;
-        tapCount = 0;
-      },
-    );
+    let newState = {
+      coinBalance = 0;
+      tapCount = 0;
+      remainderTaps = remainder;
+    };
 
-    coinsToAdd;
+    tapToEarnStates.add(caller, newState);
+    addedBalance;
   };
 
   // ===== USER PROFILE FUNCTIONS (Required by frontend) =====

@@ -1,78 +1,166 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T13:08:06.537Z",
+  "generatedAt": "2026-02-10T21:22:38.804Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+        "summary": "Localize the entire frontend UI to Bangla (bn-BD), including page titles, buttons, form labels/placeholders, toasts, alerts, empty states, and validation/error messages across Earn/Finance/E‑Service/Profile/Admin flows.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/i18n/bn-BD.ts",
+          "frontend/src/i18n/index.ts",
+          "frontend/index.html",
+          "frontend/src/components/app/AppShell.tsx",
+          "frontend/src/components/app/PrimaryTabs.tsx",
+          "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "frontend/src/pages/earn/WithdrawPage.tsx",
+          "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "frontend/src/pages/finance/FinanceLanding.tsx",
+          "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "frontend/src/pages/finance/DPSPage.tsx",
+          "frontend/src/pages/finance/DollarBuySellPage.tsx",
+          "frontend/src/pages/finance/MoneyTransferPage.tsx",
+          "frontend/src/pages/eservices/EServiceLanding.tsx",
+          "frontend/src/pages/eservices/EServiceRequestPage.tsx",
+          "frontend/src/pages/eservices/EServiceHistoryPage.tsx",
+          "frontend/src/pages/profile/ProfilePage.tsx",
+          "frontend/src/pages/admin/AdminBanPanel.tsx",
+          "frontend/src/components/referrals/ReferralCard.tsx",
+          "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
           "frontend/src/hooks/queries/useTapToEarn.ts",
-          "frontend/src/pages/earn/TapToEarnPage.tsx"
+          "frontend/src/hooks/queries/useEServices.ts",
+          "frontend/src/hooks/queries/useWithdrawals.ts",
+          "frontend/src/hooks/queries/useFinance.ts",
+          "frontend/src/hooks/queries/useTasks.ts",
+          "frontend/src/hooks/queries/useCurrentUserProfile.ts"
         ],
         "matchedFiles": [
+          "frontend/src/i18n/bn-BD.ts",
+          "frontend/src/i18n/index.ts",
+          "frontend/index.html",
+          "frontend/src/components/app/AppShell.tsx",
+          "frontend/src/components/app/PrimaryTabs.tsx",
+          "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "frontend/src/pages/earn/WithdrawPage.tsx",
+          "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "frontend/src/pages/finance/DPSPage.tsx",
+          "frontend/src/pages/admin/AdminBanPanel.tsx",
+          "frontend/src/components/referrals/ReferralCard.tsx",
+          "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
           "frontend/src/hooks/queries/useTapToEarn.ts",
-          "frontend/src/pages/earn/TapToEarnPage.tsx"
+          "frontend/src/hooks/queries/useWithdrawals.ts",
+          "frontend/src/hooks/queries/useFinance.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+        "summary": "Switch all money/balance displays and money input labels from USD to BDT across the app UI, using the ৳ symbol and Bangla locale formatting where appropriate.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useTapBatching.ts",
-          "frontend/src/hooks/queries/useTapToEarn.ts",
-          "frontend/src/pages/earn/TapToEarnPage.tsx"
+          "frontend/src/utils/currency.ts",
+          "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "frontend/src/pages/earn/WithdrawPage.tsx",
+          "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "frontend/src/pages/finance/DPSPage.tsx",
+          "frontend/src/pages/finance/FinanceLanding.tsx",
+          "frontend/src/pages/finance/DollarBuySellPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useTapBatching.ts",
-          "frontend/src/hooks/queries/useTapToEarn.ts",
-          "frontend/src/pages/earn/TapToEarnPage.tsx"
+          "frontend/src/utils/currency.ts",
+          "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "frontend/src/pages/earn/WithdrawPage.tsx",
+          "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "frontend/src/pages/finance/DPSPage.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including basic validation (e.g., non-zero count and a reasonable max per call) and applying the existing authorization + ban checks.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+        "summary": "Implement the tap-to-earn conversion rule: when the user claims tap-to-earn coins, each 1000 taps/coins adds 8 BDT to the user account balance, and any remainder taps/coins that do not make a full 1000 are preserved for future claiming.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/earn/TapToEarnPage.tsx",
-          "frontend/src/hooks/queries/useTapToEarn.ts"
+          "frontend/src/hooks/queries/useTapToEarn.ts",
+          "frontend/src/utils/currency.ts"
         ],
         "matchedFiles": [
           "frontend/src/pages/earn/TapToEarnPage.tsx",
-          "frontend/src/hooks/queries/useTapToEarn.ts"
+          "frontend/src/hooks/queries/useTapToEarn.ts",
+          "frontend/src/utils/currency.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Remove the previously implemented 30-second delay from the Tap-to-Earn ad triggering flow so that when an ad threshold is reached, the interstitial ad shows immediately (no countdown/pending state).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useTapToEarnAdScheduler.ts",
+          "frontend/src/pages/earn/TapToEarnPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useTapToEarnAdScheduler.ts",
+          "frontend/src/pages/earn/TapToEarnPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Update the Tap-to-Earn ad interstitial to load and display ads from the user-provided ad script and direct ad link (external), replacing the current self-hosted static ad creative inventory for ad content rendering.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/config/ads.ts",
+          "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+          "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "frontend/src/utils/ads/inventory.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/config/ads.ts",
+          "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+          "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "frontend/src/utils/ads/inventory.ts"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/index.html",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
+    "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+    "frontend/src/components/app/AppShell.tsx",
+    "frontend/src/components/app/PrimaryTabs.tsx",
+    "frontend/src/components/referrals/ReferralCard.tsx",
+    "frontend/src/config/ads.ts",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/queries/useFinance.ts",
     "frontend/src/hooks/queries/useTapToEarn.ts",
+    "frontend/src/hooks/queries/useWithdrawals.ts",
     "frontend/src/hooks/useTapBatching.ts",
+    "frontend/src/hooks/useTapToEarnAdScheduler.ts",
+    "frontend/src/i18n/bn-BD.ts",
+    "frontend/src/i18n/index.ts",
+    "frontend/src/pages/admin/AdminBanPanel.tsx",
+    "frontend/src/pages/earn/EarningsDashboard.tsx",
     "frontend/src/pages/earn/TapToEarnPage.tsx",
+    "frontend/src/pages/earn/WithdrawPage.tsx",
+    "frontend/src/pages/finance/DPSPage.tsx",
+    "frontend/src/pages/finance/MicroLoanPage.tsx",
+    "frontend/src/utils/ads/inventory.ts",
+    "frontend/src/utils/currency.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from '../useActor';
 import type { WithdrawRequest, WithdrawMethod } from '../../backend';
 import { toast } from 'sonner';
+import { t } from '../../i18n';
 
 export function useMyWithdrawalRequests() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -9,7 +10,7 @@ export function useMyWithdrawalRequests() {
   return useQuery<WithdrawRequest[]>({
     queryKey: ['myWithdrawalRequests'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getMyWithdrawalRequests();
     },
     enabled: !!actor && !actorFetching,
@@ -28,10 +29,10 @@ export function useRequestWithdrawal() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myWithdrawalRequests'] });
       queryClient.invalidateQueries({ queryKey: ['myBalance'] });
-      toast.success('Withdrawal request submitted successfully!');
+      toast.success(t('withdrawal.requestSuccess'));
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit withdrawal request');
+      toast.error(error.message || t('withdrawal.requestError'));
     },
   });
 }

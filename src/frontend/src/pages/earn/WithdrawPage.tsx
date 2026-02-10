@@ -12,6 +12,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import type { WithdrawMethod } from '../../backend';
 import { AlertCircle, Wallet } from 'lucide-react';
+import { t } from '../../i18n';
+import { formatBDT } from '../../utils/currency';
 
 export function WithdrawPage() {
   const { data: balance = BigInt(0) } = useMyBalance();
@@ -29,7 +31,7 @@ export function WithdrawPage() {
   const [routingNumber, setRoutingNumber] = useState('');
 
   const isBanned = banStatus !== null;
-  const balanceInDollars = Number(balance) / 100;
+  const balanceInBDT = formatBDT(balance);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,19 +84,19 @@ export function WithdrawPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">Withdraw Funds</h3>
-        <p className="text-muted-foreground">Request withdrawal to your bank or mobile wallet</p>
+        <h3 className="text-2xl font-bold mb-2">{t('withdrawal.title')}</h3>
+        <p className="text-muted-foreground">{t('withdrawal.description')}</p>
       </div>
 
       <Card className="bg-gradient-to-br from-primary to-primary/80 text-white border-0">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wallet className="h-5 w-5" />
-            Available Balance
+            {t('withdrawal.availableBalance')}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-4xl font-bold">${balanceInDollars.toFixed(2)}</div>
+          <div className="text-4xl font-bold">{balanceInBDT}</div>
         </CardContent>
       </Card>
 
@@ -102,20 +104,20 @@ export function WithdrawPage() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Your account is banned. You cannot request withdrawals.
+            {t('withdrawal.banned')}
           </AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>New Withdrawal Request</CardTitle>
-          <CardDescription>Fill in the details to request a withdrawal</CardDescription>
+          <CardTitle>{t('withdrawal.newRequest')}</CardTitle>
+          <CardDescription>{t('withdrawal.newRequestDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="amount">Amount (USD)</Label>
+              <Label htmlFor="amount">{t('withdrawal.amount')}</Label>
               <Input
                 id="amount"
                 type="number"
@@ -127,20 +129,20 @@ export function WithdrawPage() {
                 disabled={isBanned}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Maximum: ${balanceInDollars.toFixed(2)}
+                {t('withdrawal.maximum')}: {balanceInBDT}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="methodType">Withdrawal Method</Label>
+              <Label htmlFor="methodType">{t('withdrawal.method')}</Label>
               <Select value={methodType} onValueChange={(v: any) => setMethodType(v)} disabled={isBanned}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mobile">Mobile Wallet (bKash/Nagad)</SelectItem>
-                  <SelectItem value="bank">Bank Account</SelectItem>
-                  <SelectItem value="global">Other</SelectItem>
+                  <SelectItem value="mobile">{t('withdrawal.mobileWallet')}</SelectItem>
+                  <SelectItem value="bank">{t('withdrawal.bankAccount')}</SelectItem>
+                  <SelectItem value="global">{t('withdrawal.other')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -148,10 +150,10 @@ export function WithdrawPage() {
             {methodType === 'mobile' && (
               <>
                 <div>
-                  <Label htmlFor="provider">Provider</Label>
+                  <Label htmlFor="provider">{t('withdrawal.provider')}</Label>
                   <Select value={provider} onValueChange={setProvider} disabled={isBanned}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select provider" />
+                      <SelectValue placeholder={t('withdrawal.selectProvider')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="bKash">bKash</SelectItem>
@@ -161,7 +163,7 @@ export function WithdrawPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="accountNumber">Account Number</Label>
+                  <Label htmlFor="accountNumber">{t('withdrawal.accountNumber')}</Label>
                   <Input
                     id="accountNumber"
                     value={accountNumber}
@@ -177,7 +179,7 @@ export function WithdrawPage() {
             {methodType === 'bank' && (
               <>
                 <div>
-                  <Label htmlFor="bankName">Bank Name</Label>
+                  <Label htmlFor="bankName">{t('withdrawal.bankName')}</Label>
                   <Input
                     id="bankName"
                     value={bankName}
@@ -187,7 +189,7 @@ export function WithdrawPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="branch">Branch</Label>
+                  <Label htmlFor="branch">{t('withdrawal.branch')}</Label>
                   <Input
                     id="branch"
                     value={branch}
@@ -197,7 +199,7 @@ export function WithdrawPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="accountHolderName">Account Holder Name</Label>
+                  <Label htmlFor="accountHolderName">{t('withdrawal.accountHolderName')}</Label>
                   <Input
                     id="accountHolderName"
                     value={accountHolderName}
@@ -207,7 +209,7 @@ export function WithdrawPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="accountNumber">Account Number</Label>
+                  <Label htmlFor="accountNumber">{t('withdrawal.accountNumber')}</Label>
                   <Input
                     id="accountNumber"
                     value={accountNumber}
@@ -217,7 +219,7 @@ export function WithdrawPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="routingNumber">Routing Number</Label>
+                  <Label htmlFor="routingNumber">{t('withdrawal.routingNumber')}</Label>
                   <Input
                     id="routingNumber"
                     value={routingNumber}
@@ -232,7 +234,7 @@ export function WithdrawPage() {
             {methodType === 'global' && (
               <>
                 <div>
-                  <Label htmlFor="provider">Provider</Label>
+                  <Label htmlFor="provider">{t('withdrawal.provider')}</Label>
                   <Input
                     id="provider"
                     value={provider}
@@ -243,7 +245,7 @@ export function WithdrawPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="accountNumber">Account Number</Label>
+                  <Label htmlFor="accountNumber">{t('withdrawal.accountNumber')}</Label>
                   <Input
                     id="accountNumber"
                     value={accountNumber}
@@ -261,7 +263,7 @@ export function WithdrawPage() {
               className="w-full bg-gradient-to-r from-primary to-accent text-white"
               disabled={requestWithdrawal.isPending || isBanned}
             >
-              {requestWithdrawal.isPending ? 'Submitting...' : 'Submit Withdrawal Request'}
+              {requestWithdrawal.isPending ? t('withdrawal.submitting') : t('withdrawal.submitRequest')}
             </Button>
           </form>
         </CardContent>
@@ -269,18 +271,18 @@ export function WithdrawPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Withdrawal History</CardTitle>
-          <CardDescription>Your past withdrawal requests</CardDescription>
+          <CardTitle>{t('withdrawal.history')}</CardTitle>
+          <CardDescription>{t('withdrawal.historyDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {requests.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No withdrawal requests yet</p>
+            <p className="text-center text-muted-foreground py-8">{t('withdrawal.noRequests')}</p>
           ) : (
             <div className="space-y-4">
               {requests.map((req) => (
                 <div key={req.id} className="p-4 border rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">${(Number(req.amountCents) / 100).toFixed(2)}</p>
+                    <p className="font-medium">{formatBDT(req.amountCents)}</p>
                     <Badge
                       variant={
                         req.status === 'approved'
@@ -290,13 +292,13 @@ export function WithdrawPage() {
                           : 'secondary'
                       }
                     >
-                      {req.status}
+                      {t(`status.${req.status}`)}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {req.method.__kind__ === 'bank' && `Bank: ${req.method.bank.bankName}`}
-                    {req.method.__kind__ === 'mobile' && `Mobile: ${req.method.mobile.provider}`}
-                    {req.method.__kind__ === 'global' && `Global: ${req.method.global.provider}`}
+                    {req.method.__kind__ === 'bank' && `${t('withdrawal.bankAccount')}: ${req.method.bank.bankName}`}
+                    {req.method.__kind__ === 'mobile' && `${t('withdrawal.mobileWallet')}: ${req.method.mobile.provider}`}
+                    {req.method.__kind__ === 'global' && `${t('withdrawal.other')}: ${req.method.global.provider}`}
                   </p>
                   {req.comment && (
                     <p className="text-xs text-muted-foreground">Comment: {req.comment}</p>

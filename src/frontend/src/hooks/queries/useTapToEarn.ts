@@ -3,6 +3,7 @@ import { useActor } from '../useActor';
 import type { TapToEarnState } from '../../backend';
 import { toast } from 'sonner';
 import { useTapBatching } from '../useTapBatching';
+import { t } from '../../i18n';
 
 export function useGetTapToEarnState() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -31,7 +32,7 @@ export function useRegisterTap() {
       queryClient.invalidateQueries({ queryKey: ['tapToEarnState'] });
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to register tap');
+      toast.error(error.message || t('errors.tapError'));
     },
   });
 }
@@ -49,7 +50,7 @@ export function useBatchedTapToEarn() {
     },
     onError: (error: Error) => {
       console.error('Batch flush error:', error);
-      toast.error(error.message || 'Failed to register taps');
+      toast.error(error.message || t('errors.tapError'));
     },
   });
 
@@ -78,14 +79,15 @@ export function useClaimTapToEarnCoins() {
   return useMutation({
     mutationFn: async (arg: null) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.claimTapToEarnCoins(arg);
+      const creditedCents = await actor.claimTapToEarnCoins(arg);
+      return creditedCents;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tapToEarnState'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
+      queryClient.invalidateQueries({ queryKey: ['myBalance'] });
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to claim coins');
+      toast.error(error.message || t('errors.claimError'));
     },
   });
 }

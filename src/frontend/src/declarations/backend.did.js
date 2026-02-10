@@ -143,6 +143,7 @@ export const Referral = IDL.Record({
 });
 export const TapToEarnState = IDL.Record({
   'coinBalance' : IDL.Nat,
+  'remainderTaps' : IDL.Nat,
   'tapCount' : IDL.Nat,
 });
 
@@ -403,6 +404,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const TapToEarnState = IDL.Record({
     'coinBalance' : IDL.Nat,
+    'remainderTaps' : IDL.Nat,
     'tapCount' : IDL.Nat,
   });
   

@@ -121,6 +121,7 @@ export interface MicroLoanRequest {
 }
 export interface TapToEarnState {
     coinBalance: bigint;
+    remainderTaps: bigint;
     tapCount: bigint;
 }
 export enum EServiceType {

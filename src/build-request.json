@@ -1,104 +1,114 @@
 {
   "kind": "build_request",
-  "title": "Improve Tap-to-Earn tap responsiveness (faster tapping)",
+  "title": "Localize UI to Bangla, switch currency to BDT with tap-to-earn conversion, and update ad system to remove delay + show ads from provided script/link",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "text": "Localize the entire frontend UI to Bangla (bn-BD), including page titles, buttons, form labels/placeholders, toasts, alerts, empty states, and validation/error messages across Earn/Finance/E‑Service/Profile/Admin flows.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-7"
         ],
         "quotes": [
-          "Earn section update koro tap ta aro fast tap kora jabe amon kore dao"
+          "all app Language Bangla kore dao"
         ]
       },
       "acceptanceCriteria": [
-        "When the user taps the coin repeatedly, the on-screen coin balance increments immediately with no visible lag from network requests.",
-        "The UI remains responsive while tapping quickly (no repeated 'Tapping...' blocking that prevents fast consecutive taps).",
-        "If a tap submission fails, the UI rolls back or reconciles with the server state without leaving the balance permanently incorrect."
+        "All visible UI strings in the app are displayed in Bangla (bn-BD) by default.",
+        "No hard-coded English user-facing strings remain in core pages/components (excluding immutable UI library internals).",
+        "Tap-to-earn page text (e.g., headings, alerts, CTA labels, toast messages) is shown in Bangla."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "text": "Switch all money/balance displays and money input labels from USD to BDT across the app UI, using the ৳ symbol and Bangla locale formatting where appropriate.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-7"
         ],
         "quotes": [
-          "tap ta aro fast tap kora jabe"
+          "Currency BDT"
         ]
       },
       "acceptanceCriteria": [
-        "During rapid tapping, the frontend does not issue one backend mutation per tap; taps are sent in batches.",
-        "Banned users still cannot tap (no local increment occurs when banned).",
-        "After batching flush completes, the server-backed Tap-to-Earn state (fetched via getTapToEarnState) matches the optimistic UI within a short reconciliation window."
+        "Earnings dashboard balance and earnings cards display amounts as BDT (e.g., ৳123.45) instead of $-prefixed USD.",
+        "Withdraw page shows available balance in BDT and updates the amount label and helper text from USD to BDT.",
+        "Finance pages that accept/display amounts (e.g., Micro Loan, DPS) label and render amounts in BDT instead of USD.",
+        "No UI text references USD after the change (except in code comments/developer-only contexts)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including basic validation (e.g., non-zero count and a reasonable max per call) and applying the existing authorization + ban checks.",
-      "target": "backend",
+      "text": "Implement the tap-to-earn conversion rule: when the user claims tap-to-earn coins, each 1000 taps/coins adds 8 BDT to the user account balance, and any remainder taps/coins that do not make a full 1000 are preserved for future claiming.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-7"
         ],
         "quotes": [
-          "tap ta aro fast tap kora jabe amon kore dao"
+          "Currency BDT 1000 tap korle 8 bdt balance a add korba"
         ]
       },
       "acceptanceCriteria": [
-        "A new shared backend function exists that accepts a tap count and increments TapToEarnState accordingly in a single call.",
-        "The function enforces the same permission check as registerTap and calls the existing ban check logic (banned users are rejected).",
-        "Invalid counts (e.g., 0 or excessively large) are rejected with a clear trap message.",
-        "Existing registerTap and claimTapToEarnCoins behavior remains unchanged for compatibility."
+        "Backend claim operation credits account balance by +8 BDT for every full 1000 tap-to-earn coins available at claim time.",
+        "If the user has a remainder after conversion (e.g., 1500 coins), the claim credits only for full thousands (e.g., +8 BDT) and leaves the remainder (e.g., 500 coins) in tap-to-earn state.",
+        "Frontend claim confirmation/toast messaging reflects the credited BDT amount (not raw coin count).",
+        "Tap-to-earn page guidance text is updated to reflect the new rule (in Bangla)."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "text": "Remove the previously implemented 30-second delay from the Tap-to-Earn ad triggering flow so that when an ad threshold is reached, the interstitial ad shows immediately (no countdown/pending state).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-7"
         ],
         "quotes": [
-          "Earn section update"
+          "Ad system ta ami pore jei 30 second delay add korchilam seta kete diyo"
         ]
       },
       "acceptanceCriteria": [
-        "With rapid taps, the small-ad trigger still occurs exactly when the effective tap count reaches a multiple of 45, and the big-ad trigger occurs exactly at multiples of 280 (no missed triggers due to batching).",
-        "Ads do not double-trigger for the same threshold count (existing de-duplication behavior continues to work).",
-        "While an ad is showing, tapping is still blocked as it is today."
+        "When an ad threshold is reached on Tap-to-Earn, the ad interstitial opens immediately without waiting 30 seconds.",
+        "The countdown UI and any 'scheduled in N seconds' messaging no longer appears.",
+        "No setInterval/setTimeout-based 30-second countdown behavior remains in the tap-to-earn ad scheduler."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Update the Tap-to-Earn ad interstitial to load and display ads from the user-provided ad script and direct ad link (external), replacing the current self-hosted static ad creative inventory for ad content rendering.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "script and ads direct link dichi seta theke ads show korbe"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The ad interstitial supports rendering an externally provided ad via a configurable script snippet and/or a direct ad URL.",
+        "The existing self-hosted creative inventory selection (imagePath/title/description) is no longer the source of truth for what is displayed in the interstitial once external ad configuration is present.",
+        "If the external ad script/link fails to load, the interstitial shows a user-friendly Bangla error state and allows the user to close and continue.",
+        "The ad configuration values (script and direct link) are stored in a single explicit configuration location in the frontend codebase so they can be updated without refactoring multiple components."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui).",
-    "Backend must remain a single-actor Motoko canister (all logic in backend/main.mo).",
-    "Do not introduce external databases, third-party auth providers, WebSockets, or non-supported backend languages."
+    "Do not edit files under frontend/src/components/ui (read-only UI library sources). Compose them instead.",
+    "Do not edit immutable auth/actor bootstrap hooks: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo; only add backend/migration.mo if an actual state migration is required."
   ],
   "nonGoals": [
-    "Changing the overall Earn tab navigation or adding new earning features beyond improving tap responsiveness.",
-    "Redesigning the global theme/palette (only responsiveness behavior changes are in scope).",
-    "Implementing new ad providers or changing Monetag integration beyond ensuring thresholds still work with batching."
+    "Adding third-party authentication providers (only Internet Identity is supported).",
+    "Adding real-time networking features (e.g., WebSockets) for ads or earnings.",
+    "Introducing external databases or backend services outside the existing Motoko canister."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

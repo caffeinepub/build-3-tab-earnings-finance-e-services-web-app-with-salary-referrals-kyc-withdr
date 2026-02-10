@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Principal } from '@icp-sdk/core/principal';
 import { Shield, Ban, CheckCircle } from 'lucide-react';
+import { t } from '../../i18n';
 
 export function AdminBanPanel() {
   const banUser = useBanUser();
@@ -31,7 +32,7 @@ export function AdminBanPanel() {
       setPrincipalId('');
       setReason('');
     } catch (err: any) {
-      setError(err.message || 'Failed to ban user');
+      setError(err.message || t('admin.banError'));
     }
   };
 
@@ -44,7 +45,7 @@ export function AdminBanPanel() {
       await unbanUser.mutateAsync(principal);
       setPrincipalId('');
     } catch (err: any) {
-      setError(err.message || 'Failed to unban user');
+      setError(err.message || t('admin.unbanError'));
     }
   };
 
@@ -53,9 +54,9 @@ export function AdminBanPanel() {
       <div>
         <h2 className="text-3xl font-bold mb-2 flex items-center gap-2 text-primary">
           <Shield className="h-8 w-8" />
-          Admin Ban Panel
+          {t('admin.banPanel')}
         </h2>
-        <p className="text-muted-foreground">Manage user bans and restrictions</p>
+        <p className="text-muted-foreground">{t('admin.manageBans')}</p>
       </div>
 
       {error && (
@@ -68,14 +69,14 @@ export function AdminBanPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Ban className="h-5 w-5 text-primary" />
-            Ban User
+            {t('admin.banUser')}
           </CardTitle>
-          <CardDescription>Permanently ban a user from the platform</CardDescription>
+          <CardDescription>{t('admin.banUserDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleBan} className="space-y-4">
             <div>
-              <Label htmlFor="ban-principal">User Principal ID</Label>
+              <Label htmlFor="ban-principal">{t('admin.userPrincipalId')}</Label>
               <Input
                 id="ban-principal"
                 value={principalId}
@@ -86,12 +87,12 @@ export function AdminBanPanel() {
             </div>
 
             <div>
-              <Label htmlFor="reason">Ban Reason</Label>
+              <Label htmlFor="reason">{t('admin.banReason')}</Label>
               <Textarea
                 id="reason"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Describe the reason for banning this user"
+                placeholder={t('admin.banReasonPlaceholder')}
                 required
               />
             </div>
@@ -102,7 +103,7 @@ export function AdminBanPanel() {
               className="w-full"
               disabled={banUser.isPending}
             >
-              {banUser.isPending ? 'Banning...' : 'Ban User'}
+              {banUser.isPending ? t('admin.banning') : t('admin.banUser')}
             </Button>
           </form>
         </CardContent>
@@ -112,14 +113,14 @@ export function AdminBanPanel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-primary" />
-            Unban User
+            {t('admin.unbanUser')}
           </CardTitle>
-          <CardDescription>Remove ban from a user account</CardDescription>
+          <CardDescription>{t('admin.unbanUserDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUnban} className="space-y-4">
             <div>
-              <Label htmlFor="unban-principal">User Principal ID</Label>
+              <Label htmlFor="unban-principal">{t('admin.userPrincipalId')}</Label>
               <Input
                 id="unban-principal"
                 value={principalId}
@@ -134,7 +135,7 @@ export function AdminBanPanel() {
               className="w-full bg-gradient-to-r from-primary to-accent text-white"
               disabled={unbanUser.isPending}
             >
-              {unbanUser.isPending ? 'Unbanning...' : 'Unban User'}
+              {unbanUser.isPending ? t('admin.unbanning') : t('admin.unbanUser')}
             </Button>
           </form>
         </CardContent>

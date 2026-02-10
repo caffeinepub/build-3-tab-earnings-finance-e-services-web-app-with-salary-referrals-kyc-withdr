@@ -1,34 +1,52 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [
-    "Earn section tap responsiveness is slow; needs improvement"
+  "summary": "App update: localize UI to Bangla, switch currency to BDT with a specific top-up credit rule, and adjust ad system to remove the 30-second delay and load ads from a provided script/direct link.",
+  "architectural_notes": [
+    "App must support full Bangla (BN) localization across all screens/text.",
+    "Wallet/top-up logic must implement mapping: BDT 1000 purchase => +8 BDT balance credit.",
+    "Ad loading must support rendering ads from an externally provided script/direct link (no delay)."
   ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-tap-to-earn-screen-so-taps-feel-instant-even-during-rapid-tapping-by-updating-the-displayed-coin-balance-tap-count-immediately-on-tap-optimistic-ui-instead-of-waiting-for-each-network-round-trip",
-      "title": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "id": "feature-localize-the-entire-frontend-ui-to-bangla-bn-bd-including-page-titles-buttons-form-labels-placeholders-toasts-alerts-empty-states-and-validation-error-messages-across-earn-finance-e-service-profile-admin-flows",
+      "title": "Localize the entire frontend UI to Bangla (bn-BD), including page titles, buttons, form labels/placeholders, toasts, alerts, empty states, and validation/error messages across Earn/Finance/E‑Service/Profile/Admin flows.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-reduce-backend-calls-during-rapid-tapping-by-batching-taps-on-the-client-e-g-queue-multiple-taps-locally-and-send-them-to-the-backend-in-periodic-flushes-while-keeping-the-same-user-visible-rules-and-ban-restrictions",
-      "title": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "id": "feature-switch-all-money-balance-displays-and-money-input-labels-from-usd-to-bdt-across-the-app-ui-using-the-symbol-and-bangla-locale-formatting-where-appropriate",
+      "title": "Switch all money/balance displays and money input labels from USD to BDT across the app UI, using the ৳ symbol and Bangla locale formatting where appropriate.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-ad-trigger-behavior-on-the-tap-to-earn-page-so-thresholds-are-evaluated-against-the-user-s-effective-tap-count-during-optimistic-batched-tapping-so-ads-still-trigger-at-the-correct-moments-during-fast-taps",
-      "title": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "id": "feature-implement-the-tap-to-earn-conversion-rule-when-the-user-claims-tap-to-earn-coins-each-1000-taps-coins-adds-8-bdt-to-the-user-account-balance-and-any-remainder-taps-coins-that-do-not-make-a-full-1000-are-preserved-for-future-claiming",
+      "title": "Implement the tap-to-earn conversion rule: when the user claims tap-to-earn coins, each 1000 taps/coins adds 8 BDT to the user account balance, and any remainder taps/coins that do not make a full 1000 are preserved for future claiming.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-previously-implemented-30-second-delay-from-the-tap-to-earn-ad-triggering-flow-so-that-when-an-ad-threshold-is-reached-the-interstitial-ad-shows-immediately-no-countdown-pending-state",
+      "title": "Remove the previously implemented 30-second delay from the Tap-to-Earn ad triggering flow so that when an ad threshold is reached, the interstitial ad shows immediately (no countdown/pending state).",
       "reqIds": [
         "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-tap-to-earn-ad-interstitial-to-load-and-display-ads-from-the-user-provided-ad-script-and-direct-ad-link-external-replacing-the-current-self-hosted-static-ad-creative-inventory-for-ad-content-rendering",
+      "title": "Update the Tap-to-Earn ad interstitial to load and display ads from the user-provided ad script and direct ad link (external), replacing the current self-hosted static ad creative inventory for ad content rendering.",
+      "reqIds": [
+        "REQ-5"
       ],
       "version": 1
     }
@@ -36,20 +54,24 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update Earn section to make taps respond faster / improve tap responsiveness",
+      "summary": "Localize the entire app language to Bangla (BN).",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-4",
-      "summary": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including basic validation (e.g., non-zero count and a reasonable max per call) and applying the existing authorization + ban checks.",
-      "reqIds": [
-        "REQ-3"
-      ],
+      "id": "AR-2",
+      "summary": "Update currency to BDT and apply top-up rule: tapping BDT 1000 adds 8 BDT to user balance.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Remove the previously added 30-second ad delay and load/show ads directly from the provided ad script/direct link.",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Improve Tap-to-Earn tap responsiveness (faster tapping)",
+  "projectName": "Localize UI to Bangla, switch currency to BDT with tap-to-earn conversion, and update ad system to remove delay + show ads from provided script/link",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

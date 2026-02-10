@@ -1,27 +1,110 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T13:08:06.534Z",
-  "summary": "Frontend implements optimistic UI + client-side batching for Tap-to-Earn and updates ad-threshold evaluation based on the effective (optimistically updated) tap count. However, the diff summary does not provide evidence that the required new backend batched-tap method (with validation and ban/authorization checks) was added to backend/main.mo, even though the frontend now calls actor.registerTaps(...).",
+  "generatedAt": "2026-02-10T21:22:38.800Z",
+  "summary": "Diff implements Bangla i18n scaffolding and updates several key pages/components to use translations and BDT formatting, removes the 30s ad delay by showing interstitials immediately, and adds external ad configuration + loading. However, some user-facing English error strings remain, BDT formatting is not clearly Bangla-locale formatted, and the backend tap-to-earn claim conversion logic cannot be verified from the truncated backend diff.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Add a backend method to support batched tap registration (incrementing coinBalance and tapCount by N in one call), including validation and applying existing authorization + ban checks; keep existing registerTap and claimTapToEarnCoins unchanged.",
-      "reason": "The frontend now calls actor.registerTaps(BigInt(count)) during flushes, but the shown/truncated backend/main.mo content does not include any new shared method (e.g., registerTaps) nor any visible validation (non-zero/max) or ban/authorization enforcement for a batched call. With only the provided truncated backend snippet, this requirement cannot be verified as implemented.",
+      "id": "REQ-1",
+      "requirement": "Localize the entire frontend UI to Bangla (bn-BD), with no hard-coded English user-facing strings remaining in core pages/components.",
+      "reason": "The diff still contains hard-coded English strings that can surface to users via toasts/errors (e.g., error.message). This violates the “no hard-coded English user-facing strings” AC even if most UI is translated.",
       "evidence": [
-        "backend/main.mo",
-        "frontend/src/hooks/queries/useTapToEarn.ts"
+        "frontend/src/hooks/queries/useFinance.ts (\"throw new Error('Actor not available')\")",
+        "frontend/src/hooks/queries/useTapToEarn.ts (\"throw new Error('Actor not available')\")",
+        "frontend/src/hooks/queries/useWithdrawals.ts (\"throw new Error('Actor not available')\")"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Switch all money/balance displays and money input labels from USD to BDT across the app UI, using the ৳ symbol and Bangla locale formatting where appropriate.",
+      "reason": "While the ৳ symbol is used, the formatter shown uses `toFixed(2)` and does not apply Bangla locale number formatting (e.g., bn-BD digit shaping/grouping). The diff does not show amounts being formatted with bn-BD locale rules.",
+      "evidence": [
+        "frontend/src/utils/currency.ts (formatBDT uses Number(...)/100 and `toFixed(2)` without Intl/toLocaleString('bn-BD'))",
+        "frontend/src/i18n/index.ts (formatBDT also uses `toFixed(2)` without bn-BD currency/number locale formatting)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Backend claim operation credits account balance by +8 BDT for every full 1000 tap-to-earn coins and preserves remainders for future claiming.",
+      "reason": "Frontend expects `actor.claimTapToEarnCoins` to return credited cents, and backend types/migration add `remainderTaps`, but the diff summary does not include the actual backend claim implementation showing the 1000->8 BDT conversion and remainder preservation. With backend/main.mo truncated, this cannot be confirmed as implemented.",
+      "evidence": [
+        "backend/main.mo (truncated; TapToEarnState updated but claim logic not shown)",
+        "frontend/src/hooks/queries/useTapToEarn.ts (claim expects `creditedCents = await actor.claimTapToEarnCoins`)",
+        "backend/migration.mo (adds remainderTaps field but does not show conversion/credit logic)"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.62,
+  "hallucinated_features": [
+    {
+      "description": "Added Monetag ad SDK loader/types (separate from the requested 'user-provided ad script/link' configuration).",
+      "reason": "BuildRequest only asks to load ads from a provided script and/or direct URL with a single config location; it does not request adding a specific third-party Monetag integration layer.",
+      "evidence": [
+        "frontend-file-summaries.txt (mentions frontend/src/utils/ads/monetag.ts and frontend/src/types/monetag.d.ts)"
+      ]
+    },
+    {
+      "description": "Introduced/changed client-side encryption utilities for sensitive documents (Web Crypto AES-GCM) and related document upload behavior.",
+      "reason": "Not requested by any REQ; outside localization/currency/tap-to-earn/ad-delay/ad-loading scope.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/utils/crypto/clientEncryption.ts, frontend/src/hooks/queries/useDocuments.ts, frontend/src/pages/kyc/KYCPage.tsx)"
+      ]
+    },
+    {
+      "description": "Significant theme/styling changes (blue/gold OKLCH tokens, Tailwind config changes, light mode defaults, removal of green alias).",
+      "reason": "Not requested by any REQ; UI theming changes are out of scope.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/index.css, frontend/tailwind.config.js, frontend/src/App.tsx)"
+      ]
+    },
+    {
+      "description": "Added UTM-tracked caffeine.ai attribution link behavior using hostname-based app identifier.",
+      "reason": "Not requested by any REQ.",
+      "evidence": [
+        "frontend/src/components/app/AppShell.tsx (UTM tracking appIdentifier + caffeine.ai link)"
+      ]
+    },
+    {
+      "description": "Changed E-Service request verification requirement logic (email verification requirement; NID removed).",
+      "reason": "Not requested by any REQ; unrelated to localization/currency/tap-to-earn/ad work.",
+      "evidence": [
+        "frontend-file-summaries.txt (frontend/src/pages/eservices/EServiceRequestPage.tsx: \"email verification requirement (NID removed per requirements)\")"
+      ]
+    },
+    {
+      "description": "Implemented batched tap registration with periodic flush and optimistic state updates.",
+      "reason": "Not requested by any REQ; BuildRequest does not ask for batching/optimization of tap submissions.",
+      "evidence": [
+        "frontend/src/hooks/useTapBatching.ts",
+        "frontend/src/hooks/queries/useTapToEarn.ts (useBatchedTapToEarn uses useTapBatching)"
+      ]
+    }
+  ],
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
+    "frontend/index.html",
+    "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+    "frontend/src/components/app/AppShell.tsx",
+    "frontend/src/components/app/PrimaryTabs.tsx",
+    "frontend/src/components/referrals/ReferralCard.tsx",
+    "frontend/src/config/ads.ts",
+    "frontend/src/hooks/queries/useFinance.ts",
     "frontend/src/hooks/queries/useTapToEarn.ts",
+    "frontend/src/hooks/queries/useWithdrawals.ts",
     "frontend/src/hooks/useTapBatching.ts",
+    "frontend/src/hooks/useTapToEarnAdScheduler.ts",
+    "frontend/src/i18n/bn-BD.ts",
+    "frontend/src/i18n/index.ts",
+    "frontend/src/pages/admin/AdminBanPanel.tsx",
+    "frontend/src/pages/earn/EarningsDashboard.tsx",
     "frontend/src/pages/earn/TapToEarnPage.tsx",
+    "frontend/src/pages/earn/WithdrawPage.tsx",
+    "frontend/src/pages/finance/DPSPage.tsx",
+    "frontend/src/pages/finance/MicroLoanPage.tsx",
+    "frontend/src/utils/ads/inventory.ts",
+    "frontend/src/utils/currency.ts",
     "project_state.json"
   ]
 }

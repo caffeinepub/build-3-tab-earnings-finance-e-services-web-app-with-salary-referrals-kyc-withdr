@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { VerificationRequiredDialog } from '../../components/kyc/VerificationRequiredDialog';
 import { AlertCircle } from 'lucide-react';
+import { t } from '../../i18n';
+import { formatBDT } from '../../utils/currency';
 
 export function MicroLoanPage() {
   const { data: requests = [] } = useMyMicroLoanRequests();
@@ -43,18 +45,20 @@ export function MicroLoanPage() {
     setRepaymentMonths('12');
   };
 
+  const monthlyPayment = amount ? (parseFloat(amount) / parseInt(repaymentMonths)).toFixed(2) : '0.00';
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">Micro Loan</h3>
-        <p className="text-muted-foreground">Apply for quick small loans with flexible terms</p>
+        <h3 className="text-2xl font-bold mb-2">{t('finance.microLoan')}</h3>
+        <p className="text-muted-foreground">{t('finance.microLoanDesc')}</p>
       </div>
 
       {isBanned && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Your account is banned. You cannot request loans.
+            {t('withdrawal.banned')}
           </AlertDescription>
         </Alert>
       )}
@@ -63,20 +67,20 @@ export function MicroLoanPage() {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            NID verification is required to apply for micro loans. Please complete KYC verification.
+            {t('finance.nidRequired')}
           </AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>New Loan Application</CardTitle>
-          <CardDescription>Fill in the details to apply for a micro loan</CardDescription>
+          <CardTitle>{t('finance.newApplication')}</CardTitle>
+          <CardDescription>{t('finance.newApplicationDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="amount">Loan Amount (USD)</Label>
+              <Label htmlFor="amount">{t('finance.loanAmount')}</Label>
               <Input
                 id="amount"
                 type="number"
@@ -90,7 +94,7 @@ export function MicroLoanPage() {
             </div>
 
             <div>
-              <Label htmlFor="repaymentMonths">Repayment Period (Months)</Label>
+              <Label htmlFor="repaymentMonths">{t('finance.repaymentPeriod')}</Label>
               <Input
                 id="repaymentMonths"
                 type="number"
@@ -104,23 +108,30 @@ export function MicroLoanPage() {
             </div>
 
             <div>
-              <Label htmlFor="purpose">Purpose</Label>
+              <Label htmlFor="purpose">{t('finance.purpose')}</Label>
               <Textarea
                 id="purpose"
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                placeholder="Describe why you need this loan"
+                placeholder={t('finance.purposePlaceholder')}
                 required
                 disabled={isBanned}
               />
             </div>
+
+            {amount && repaymentMonths && (
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">{t('finance.monthlyPayment')}</p>
+                <p className="text-2xl font-bold">৳{monthlyPayment}</p>
+              </div>
+            )}
 
             <Button
               type="submit"
               className="w-full bg-gradient-to-r from-primary to-accent text-white"
               disabled={requestLoan.isPending || isBanned}
             >
-              {requestLoan.isPending ? 'Submitting...' : 'Submit Loan Application'}
+              {requestLoan.isPending ? t('finance.applying') : t('finance.applyForLoan')}
             </Button>
           </form>
         </CardContent>
@@ -128,18 +139,18 @@ export function MicroLoanPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Loan History</CardTitle>
-          <CardDescription>Your past loan applications</CardDescription>
+          <CardTitle>{t('finance.loanHistory')}</CardTitle>
+          <CardDescription>{t('finance.loanHistoryDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {requests.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No loan applications yet</p>
+            <p className="text-center text-muted-foreground py-8">{t('finance.noLoanRequests')}</p>
           ) : (
             <div className="space-y-4">
               {requests.map((req) => (
                 <div key={req.id} className="p-4 border rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">${(Number(req.amountCents) / 100).toFixed(2)}</p>
+                    <p className="font-medium">{formatBDT(req.amountCents)}</p>
                     <Badge
                       variant={
                         req.status === 'approved'
@@ -149,12 +160,12 @@ export function MicroLoanPage() {
                           : 'secondary'
                       }
                     >
-                      {req.status}
+                      {t(`status.${req.status}`)}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">{req.purpose}</p>
                   <p className="text-xs text-muted-foreground">
-                    {Number(req.repaymentMonths)} months • ${(Number(req.monthlyPaymentCents) / 100).toFixed(2)}/month
+                    {t('finance.monthlyPayment')}: {formatBDT(req.monthlyPaymentCents)} × {Number(req.repaymentMonths)} {t('finance.repaymentPeriod').toLowerCase()}
                   </p>
                 </div>
               ))}

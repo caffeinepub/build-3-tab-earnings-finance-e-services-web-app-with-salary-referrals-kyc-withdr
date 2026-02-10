@@ -2,11 +2,25 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-tap-to-earn-screen-so-taps-feel-instant-even-during-rapid-tapping-by-updating-the-displayed-coin-balance-tap-count-immediately-on-tap-optimistic-ui-instead-of-waiting-for-each-network-round-trip",
-      "featureTitle": "Update the Tap-to-Earn screen so taps feel instant even during rapid tapping by updating the displayed coin balance/tap count immediately on tap (optimistic UI) instead of waiting for each network round-trip.",
+      "featureId": "feature-localize-the-entire-frontend-ui-to-bangla-bn-bd-including-page-titles-buttons-form-labels-placeholders-toasts-alerts-empty-states-and-validation-error-messages-across-earn-finance-e-service-profile-admin-flows",
+      "featureTitle": "Localize the entire frontend UI to Bangla (bn-BD), including page titles, buttons, form labels/placeholders, toasts, alerts, empty states, and validation/error messages across Earn/Finance/E‑Service/Profile/Admin flows.",
       "files": [
+        "frontend/index.html",
+        "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+        "frontend/src/components/app/AppShell.tsx",
+        "frontend/src/components/app/PrimaryTabs.tsx",
+        "frontend/src/components/referrals/ReferralCard.tsx",
+        "frontend/src/hooks/queries/useFinance.ts",
         "frontend/src/hooks/queries/useTapToEarn.ts",
-        "frontend/src/pages/earn/TapToEarnPage.tsx"
+        "frontend/src/hooks/queries/useWithdrawals.ts",
+        "frontend/src/i18n/bn-BD.ts",
+        "frontend/src/i18n/index.ts",
+        "frontend/src/pages/admin/AdminBanPanel.tsx",
+        "frontend/src/pages/earn/EarningsDashboard.tsx",
+        "frontend/src/pages/earn/TapToEarnPage.tsx",
+        "frontend/src/pages/earn/WithdrawPage.tsx",
+        "frontend/src/pages/finance/DPSPage.tsx",
+        "frontend/src/pages/finance/MicroLoanPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,12 +37,14 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-reduce-backend-calls-during-rapid-tapping-by-batching-taps-on-the-client-e-g-queue-multiple-taps-locally-and-send-them-to-the-backend-in-periodic-flushes-while-keeping-the-same-user-visible-rules-and-ban-restrictions",
-      "featureTitle": "Reduce backend calls during rapid tapping by batching taps on the client (e.g., queue multiple taps locally and send them to the backend in periodic flushes), while keeping the same user-visible rules and ban restrictions.",
+      "featureId": "feature-switch-all-money-balance-displays-and-money-input-labels-from-usd-to-bdt-across-the-app-ui-using-the-symbol-and-bangla-locale-formatting-where-appropriate",
+      "featureTitle": "Switch all money/balance displays and money input labels from USD to BDT across the app UI, using the ৳ symbol and Bangla locale formatting where appropriate.",
       "files": [
-        "frontend/src/hooks/queries/useTapToEarn.ts",
-        "frontend/src/hooks/useTapBatching.ts",
-        "frontend/src/pages/earn/TapToEarnPage.tsx"
+        "frontend/src/pages/earn/EarningsDashboard.tsx",
+        "frontend/src/pages/earn/WithdrawPage.tsx",
+        "frontend/src/pages/finance/DPSPage.tsx",
+        "frontend/src/pages/finance/MicroLoanPage.tsx",
+        "frontend/src/utils/currency.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -45,10 +61,32 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-ad-trigger-behavior-on-the-tap-to-earn-page-so-thresholds-are-evaluated-against-the-user-s-effective-tap-count-during-optimistic-batched-tapping-so-ads-still-trigger-at-the-correct-moments-during-fast-taps",
-      "featureTitle": "Update ad-trigger behavior on the Tap-to-Earn page so thresholds are evaluated against the user’s effective tap count during optimistic/batched tapping (so ads still trigger at the correct moments during fast taps).",
+      "featureId": "feature-implement-the-tap-to-earn-conversion-rule-when-the-user-claims-tap-to-earn-coins-each-1000-taps-coins-adds-8-bdt-to-the-user-account-balance-and-any-remainder-taps-coins-that-do-not-make-a-full-1000-are-preserved-for-future-claiming",
+      "featureTitle": "Implement the tap-to-earn conversion rule: when the user claims tap-to-earn coins, each 1000 taps/coins adds 8 BDT to the user account balance, and any remainder taps/coins that do not make a full 1000 are preserved for future claiming.",
       "files": [
         "frontend/src/hooks/queries/useTapToEarn.ts",
+        "frontend/src/pages/earn/TapToEarnPage.tsx",
+        "frontend/src/utils/currency.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-previously-implemented-30-second-delay-from-the-tap-to-earn-ad-triggering-flow-so-that-when-an-ad-threshold-is-reached-the-interstitial-ad-shows-immediately-no-countdown-pending-state",
+      "featureTitle": "Remove the previously implemented 30-second delay from the Tap-to-Earn ad triggering flow so that when an ad threshold is reached, the interstitial ad shows immediately (no countdown/pending state).",
+      "files": [
+        "frontend/src/hooks/useTapToEarnAdScheduler.ts",
         "frontend/src/pages/earn/TapToEarnPage.tsx"
       ],
       "components": [
@@ -62,6 +100,29 @@
       ],
       "testIds": [
         "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-tap-to-earn-ad-interstitial-to-load-and-display-ads-from-the-user-provided-ad-script-and-direct-ad-link-external-replacing-the-current-self-hosted-static-ad-creative-inventory-for-ad-content-rendering",
+      "featureTitle": "Update the Tap-to-Earn ad interstitial to load and display ads from the user-provided ad script and direct ad link (external), replacing the current self-hosted static ad creative inventory for ad content rendering.",
+      "files": [
+        "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+        "frontend/src/config/ads.ts",
+        "frontend/src/pages/earn/TapToEarnPage.tsx",
+        "frontend/src/utils/ads/inventory.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

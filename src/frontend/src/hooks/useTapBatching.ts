@@ -59,6 +59,7 @@ export function useTapBatching({
       return {
         coinBalance: old.coinBalance + 1n,
         tapCount: old.tapCount + 1n,
+        remainderTaps: old.remainderTaps,
       };
     });
 

@@ -53,7 +53,11 @@ export interface Referral {
   'timestamp' : bigint,
   'referee' : Principal,
 }
-export interface TapToEarnState { 'coinBalance' : bigint, 'tapCount' : bigint }
+export interface TapToEarnState {
+  'coinBalance' : bigint,
+  'remainderTaps' : bigint,
+  'tapCount' : bigint,
+}
 export interface Task {
   'id' : string,
   'title' : string,

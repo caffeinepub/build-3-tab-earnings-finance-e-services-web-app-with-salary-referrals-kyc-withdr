@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from '../useActor';
 import type { MicroLoanRequest, DPSRequest } from '../../backend';
 import { toast } from 'sonner';
+import { t } from '../../i18n';
 
 export function useMyMicroLoanRequests() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -9,7 +10,7 @@ export function useMyMicroLoanRequests() {
   return useQuery<MicroLoanRequest[]>({
     queryKey: ['myMicroLoanRequests'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getMyMicroLoanRequests();
     },
     enabled: !!actor && !actorFetching,
@@ -27,10 +28,10 @@ export function useRequestMicroLoan() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myMicroLoanRequests'] });
-      toast.success('Micro loan request submitted successfully!');
+      toast.success(t('finance.loanSuccess'));
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit loan request');
+      toast.error(error.message || t('finance.loanError'));
     },
   });
 }
@@ -41,7 +42,7 @@ export function useMyDPSRequests() {
   return useQuery<DPSRequest[]>({
     queryKey: ['myDPSRequests'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getMyDPSRequests();
     },
     enabled: !!actor && !actorFetching,
@@ -59,10 +60,10 @@ export function useRequestDPS() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myDPSRequests'] });
-      toast.success('DPS request submitted successfully!');
+      toast.success(t('finance.dpsSuccess'));
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit DPS request');
+      toast.error(error.message || t('finance.dpsError'));
     },
   });
 }

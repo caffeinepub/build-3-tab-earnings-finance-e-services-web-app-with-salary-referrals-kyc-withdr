@@ -1,73 +1,273 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Tap-to-Earn: Optimistic UI + client batching for faster tapping",
+  "title": "Bangla localization, BDT currency formatting, tap-to-earn UX updates, and external ad rendering",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make Tap-to-Earn taps feel instant via optimistic UI updates (immediate coinBalance/tapCount increments) with reconciliation on failure.",
+      "summary": "Localize the entire frontend UI to Bangla (bn-BD) across Earn/Finance/E‑Service/Profile/Admin flows, including page copy, toasts, empty states, and validation/error messages.",
       "acceptanceCriteria": [
-        "When the user taps the coin repeatedly, the on-screen coin balance increments immediately with no visible lag from network requests.",
-        "The UI remains responsive while tapping quickly (no repeated 'Tapping...' blocking that prevents fast consecutive taps).",
-        "If a tap submission fails, the UI rolls back or reconciles with the server state without leaving the balance permanently incorrect."
+        "All visible UI strings in the app are displayed in Bangla (bn-BD) by default.",
+        "No hard-coded English user-facing strings remain in core pages/components (excluding immutable UI library internals).",
+        "Tap-to-earn page text (e.g., headings, alerts, CTA labels, toast messages) is shown in Bangla."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "path": "frontend/src/i18n/bn-BD.ts",
+          "operation": "create",
+          "description": "Add a single source-of-truth Bangla (bn-BD) string dictionary covering shared labels (buttons, headings, statuses), common empty states, and common error/toast messages used across Earn/Finance/E‑Service/Profile/Admin."
+        },
+        {
+          "path": "frontend/src/i18n/index.ts",
+          "operation": "create",
+          "description": "Add a lightweight i18n helper (e.g., t(key)) wired to bn-BD by default, plus small utilities for interpolations (amounts, counts) so pages can remove hard-coded English strings."
+        },
+        {
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Add an optimistic update path for Tap-to-Earn state by updating the React Query cache for ['tapToEarnState'] immediately when a tap is registered locally; include a reconciliation strategy (invalidate/refetch on error and after flush) to prevent permanent divergence."
+          "description": "Update document language metadata (lang=bn-BD) and ensure the base page title is in Bangla."
+        },
+        {
+          "path": "frontend/src/components/app/AppShell.tsx",
+          "operation": "modify",
+          "description": "Replace all user-facing English strings in the shell (welcome view, header/subtitle, footer text where applicable, back buttons) with Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/components/app/PrimaryTabs.tsx",
+          "operation": "modify",
+          "description": "Localize tab labels (Earn/Finance/E‑Service) and any associated UI text to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "operation": "modify",
+          "description": "Localize dashboard card titles/subtitles (balance, task earnings, referrals, bonus) and related helper text to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/earn/WithdrawPage.tsx",
+          "operation": "modify",
+          "description": "Localize headings, form labels/placeholders, helper text, empty states, status labels, and banned/validation messaging to Bangla using the i18n helper."
         },
         {
           "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
           "operation": "modify",
-          "description": "Stop using per-tap mutation pending state to block rapid taps; render coin balance/tap count from the optimistic effective state (server state + local pending taps) so the displayed balance increments immediately while preserving existing bans/ad-blocking behavior."
+          "description": "Localize all tap-to-earn headings, guidance text, alerts, button labels, and toast messaging to Bangla using the i18n helper, including ad-related messaging states."
+        },
+        {
+          "path": "frontend/src/pages/finance/FinanceLanding.tsx",
+          "operation": "modify",
+          "description": "Localize finance landing headings, descriptions, card titles, and button labels to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "operation": "modify",
+          "description": "Localize micro-loan page headings, banned/KYC alerts, form labels/placeholders, submission button labels, and empty/history text to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/finance/DPSPage.tsx",
+          "operation": "modify",
+          "description": "Localize DPS page headings, banned alerts, form labels/placeholders, submission button labels, and empty/history text to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/finance/DollarBuySellPage.tsx",
+          "operation": "modify",
+          "description": "Localize all placeholder/coming-soon content to Bangla using the i18n helper, including any mentions of dollars in user-facing text."
+        },
+        {
+          "path": "frontend/src/pages/finance/MoneyTransferPage.tsx",
+          "operation": "modify",
+          "description": "Localize all placeholder/coming-soon content to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/eservices/EServiceLanding.tsx",
+          "operation": "modify",
+          "description": "Localize e-service landing headings, descriptions, card titles/descriptions, history button, and request CTAs to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/eservices/EServiceRequestPage.tsx",
+          "operation": "modify",
+          "description": "Localize the e-service request form (labels, placeholders, helper text), verification/banned alerts, and submission button labels to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/eservices/EServiceHistoryPage.tsx",
+          "operation": "modify",
+          "description": "Localize history headings, empty/loading text, card labels, and status text to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/profile/ProfilePage.tsx",
+          "operation": "modify",
+          "description": "Localize profile headings, edit/save labels, verification section labels and states, KYC/admin card text, and loading states to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/pages/admin/AdminBanPanel.tsx",
+          "operation": "modify",
+          "description": "Localize admin ban panel headings, form labels/placeholders, error messages, and action button labels to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/components/referrals/ReferralCard.tsx",
+          "operation": "modify",
+          "description": "Localize referral card labels, helper text, pluralization, and toast message to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+          "operation": "modify",
+          "description": "Localize interstitial title/description fallbacks, loading/error states, and close/continue CTA to Bangla using the i18n helper."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "operation": "modify",
+          "description": "Replace toast error strings with Bangla equivalents from the i18n helper (do not modify immutable auth/actor bootstrap hooks)."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useEServices.ts",
+          "operation": "modify",
+          "description": "Replace toast success/error strings (and any user-facing messages) with Bangla equivalents via the i18n helper."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useWithdrawals.ts",
+          "operation": "modify",
+          "description": "Replace toast success/error strings (and any user-facing messages) with Bangla equivalents via the i18n helper."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useFinance.ts",
+          "operation": "modify",
+          "description": "Replace toast success/error strings (and any user-facing messages) with Bangla equivalents via the i18n helper."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useTasks.ts",
+          "operation": "modify",
+          "description": "Replace toast success/error strings (and any user-facing messages) with Bangla equivalents via the i18n helper."
+        },
+        {
+          "path": "frontend/src/hooks/queries/useCurrentUserProfile.ts",
+          "operation": "modify",
+          "description": "Replace toast success/error strings (and any user-facing messages) with Bangla equivalents via the i18n helper."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Batch rapid taps on the client and flush periodically to reduce backend calls while preserving ban restrictions and reconciling state.",
+      "summary": "Switch all money/balance displays and money input labels from USD to BDT (৳) using bn-BD formatting across the UI.",
       "acceptanceCriteria": [
-        "During rapid tapping, the frontend does not issue one backend mutation per tap; taps are sent in batches.",
-        "Banned users still cannot tap (no local increment occurs when banned).",
-        "After batching flush completes, the server-backed Tap-to-Earn state (fetched via getTapToEarnState) matches the optimistic UI within a short reconciliation window."
+        "Earnings dashboard balance and earnings cards display amounts as BDT (e.g., ৳123.45) instead of $-prefixed USD.",
+        "Withdraw page shows available balance in BDT and updates the amount label and helper text from USD to BDT.",
+        "Finance pages that accept/display amounts (e.g., Micro Loan, DPS) label and render amounts in BDT instead of USD.",
+        "No UI text references USD after the change (except in code comments/developer-only contexts)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useTapBatching.ts",
+          "path": "frontend/src/utils/currency.ts",
           "operation": "create",
-          "description": "Create a small client-side tap batching helper (queue + periodic flush + max-per-flush guard) that accepts local tap events, updates optimistic state immediately, and flushes aggregated counts via the existing backendInterface registerTaps call; include retry/backoff or failure handling that triggers reconciliation (query invalidation/refetch)."
+          "description": "Add centralized currency helpers for BDT (bn-BD), including formatting (৳) and conversion from integer 'cents' style amounts used by the app (e.g., bigint minor units) to display strings."
+        },
+        {
+          "path": "frontend/src/pages/earn/EarningsDashboard.tsx",
+          "operation": "modify",
+          "description": "Replace USD computations/labels (e.g., $ and 'balanceInDollars') with BDT formatting via the currency utility, and update icons/text as needed to remove USD references."
+        },
+        {
+          "path": "frontend/src/pages/earn/WithdrawPage.tsx",
+          "operation": "modify",
+          "description": "Update balance display, amount label/helper text, and request history amount rendering to BDT using the currency utility; remove all '$' and 'USD' user-facing strings."
+        },
+        {
+          "path": "frontend/src/pages/finance/MicroLoanPage.tsx",
+          "operation": "modify",
+          "description": "Update money labels and history displays from USD to BDT (৳) using the currency utility, including monthly payment rendering; remove 'USD' from labels."
+        },
+        {
+          "path": "frontend/src/pages/finance/DPSPage.tsx",
+          "operation": "modify",
+          "description": "Update money labels and history displays from USD to BDT (৳) using the currency utility (e.g., per month text); remove 'USD' from labels."
+        },
+        {
+          "path": "frontend/src/pages/finance/FinanceLanding.tsx",
+          "operation": "modify",
+          "description": "Remove/replace any USD-specific copy (e.g., 'Dollar Buy/Sell' descriptions referencing USD) with Bangla-neutral or BDT-consistent copy where appropriate while keeping feature naming as required."
+        },
+        {
+          "path": "frontend/src/pages/finance/DollarBuySellPage.tsx",
+          "operation": "modify",
+          "description": "Remove USD references in user-facing placeholder text (and localize per REQ-1); ensure no 'US dollars' mention remains in visible UI copy."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Update Tap-to-Earn claiming UX to reflect the 1000 coins -> 8 BDT conversion rule, preserve remainder messaging, and show credited BDT amounts in confirmations.",
+      "acceptanceCriteria": [
+        "Backend claim operation credits account balance by +8 BDT for every full 1000 tap-to-earn coins available at claim time.",
+        "If the user has a remainder after conversion (e.g., 1500 coins), the claim credits only for full thousands (e.g., +8 BDT) and leaves the remainder (e.g., 500 coins) in tap-to-earn state.",
+        "Frontend claim confirmation/toast messaging reflects the credited BDT amount (not raw coin count).",
+        "Tap-to-earn page guidance text is updated to reflect the new rule (in Bangla)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "operation": "modify",
+          "description": "Update the tap-to-earn guidance copy (Bangla) to explicitly describe the conversion rule (প্রতি ১০০০ ট্যাপ/কয়েন = ৮ টাকা) and that remainder is preserved; update the claim button text to avoid implying a 1:1 coin->money claim."
         },
         {
           "path": "frontend/src/hooks/queries/useTapToEarn.ts",
           "operation": "modify",
-          "description": "Integrate the batching helper: expose a Tap-to-Earn 'tap' action that only enqueues locally and schedules flushes (instead of one network call per tap), uses actor.registerTaps for batched submission, and invalidates ['tapToEarnState'] after successful flush (and on failure) to reconcile with getTapToEarnState."
+          "description": "Adjust claim success handling so the UI can present the credited amount in BDT (using the shared currency utility) and surface a Bangla toast/confirmation message that reflects credited BDT, not raw coin count."
         },
         {
-          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "path": "frontend/src/utils/currency.ts",
           "operation": "modify",
-          "description": "Wire TapToEarnPage to use the new batched tap action; ensure banned users are blocked before any local increment/enqueue occurs, and keep tapping enabled during background flushing (only block tapping when an ad is showing, as today)."
+          "description": "Extend currency helpers as needed to support formatting the credited claim amount consistently (e.g., formatting bigint minor units or computed BDT amounts) for tap-to-earn confirmations."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Ensure ad triggers evaluate against the effective (optimistic + batched) tap count and still trigger exactly at thresholds without duplication.",
+      "summary": "Remove the 30-second delay/countdown from Tap-to-Earn ad triggering so interstitials show immediately upon reaching thresholds.",
       "acceptanceCriteria": [
-        "With rapid taps, the small-ad trigger still occurs exactly when the effective tap count reaches a multiple of 45, and the big-ad trigger occurs exactly at multiples of 280 (no missed triggers due to batching).",
-        "Ads do not double-trigger for the same threshold count (existing de-duplication behavior continues to work).",
-        "While an ad is showing, tapping is still blocked as it is today."
+        "When an ad threshold is reached on Tap-to-Earn, the ad interstitial opens immediately without waiting 30 seconds.",
+        "The countdown UI and any 'scheduled in N seconds' messaging no longer appears.",
+        "No setInterval/setTimeout-based 30-second countdown behavior remains in the tap-to-earn ad scheduler."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "path": "frontend/src/hooks/useTapToEarnAdScheduler.ts",
           "operation": "modify",
-          "description": "Update ad-threshold evaluation to use the effective optimistic tap count (including locally queued taps) rather than only the last server-fetched tapCount; when the effective count jumps by multiple taps between renders, detect threshold crossings and trigger ads for the exact multiple reached, while continuing to de-duplicate via triggeredAdsRef and keeping tap blocking active during ad display."
+          "description": "Refactor the ad scheduler to remove countdown/pending delay logic entirely: eliminate interval timers, set pending/countdown states, and transition directly to 'showing' when scheduleAd() is invoked."
         },
         {
-          "path": "frontend/src/hooks/queries/useTapToEarn.ts",
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
           "operation": "modify",
-          "description": "Expose the effective tapCount/coinBalance (server + pending) to the UI in a stable way (e.g., derived values from query cache + batching queue state) so TapToEarnPage can reliably evaluate ad thresholds during rapid/optimistic tapping."
+          "description": "Remove the countdown alert and any 'Ad scheduled in N seconds' / 'Ad in Ns' messaging; ensure threshold triggers call the updated scheduler and interstitial shows immediately."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Update Tap-to-Earn ad interstitial to render ads from a configurable external script and/or direct ad URL, replacing static creative inventory as the source of truth when configured, with Bangla error fallback.",
+      "acceptanceCriteria": [
+        "The ad interstitial supports rendering an externally provided ad via a configurable script snippet and/or a direct ad URL.",
+        "The existing self-hosted creative inventory selection (imagePath/title/description) is no longer the source of truth for what is displayed in the interstitial once external ad configuration is present.",
+        "If the external ad script/link fails to load, the interstitial shows a user-friendly Bangla error state and allows the user to close and continue.",
+        "The ad configuration values (script and direct link) are stored in a single explicit configuration location in the frontend codebase so they can be updated without refactoring multiple components."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/config/ads.ts",
+          "operation": "create",
+          "description": "Create a single explicit frontend configuration file holding the external ad settings (script configuration and direct ad URL) used by Tap-to-Earn interstitials so updates are centralized."
+        },
+        {
+          "path": "frontend/src/components/ads/TapToEarnAdInterstitial.tsx",
+          "operation": "modify",
+          "description": "Update the interstitial to render external ads when configuration is present (script and/or direct URL), falling back to existing creative only when external config is absent; add robust load/error handling with a Bangla-friendly error state and a close/continue action."
+        },
+        {
+          "path": "frontend/src/pages/earn/TapToEarnPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the interstitial wiring remains intact after the ad-rendering change and that any ad-complete toast/copy is localized; keep the interstitial non-orphaned and triggered by the scheduler."
+        },
+        {
+          "path": "frontend/src/utils/ads/inventory.ts",
+          "operation": "modify",
+          "description": "Demote static inventory to optional fallback only (not the source of truth when external ad configuration is present); localize any remaining creative titles/descriptions to Bangla to align with REQ-1."
         }
       ]
     }

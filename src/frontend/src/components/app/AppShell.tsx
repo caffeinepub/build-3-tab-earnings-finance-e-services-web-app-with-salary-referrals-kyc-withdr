@@ -5,8 +5,9 @@ import { PrimaryTabs } from './PrimaryTabs';
 import { BanNoticeBanner } from '../policy/BanNoticeBanner';
 import { useBanStatus } from '../../hooks/queries/useBanStatus';
 import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
+import { User, Heart } from 'lucide-react';
 import { ProfilePage } from '../../pages/profile/ProfilePage';
+import { t } from '../../i18n';
 
 export function AppShell() {
   const { identity } = useInternetIdentity();
@@ -16,13 +17,16 @@ export function AppShell() {
   const isAuthenticated = !!identity;
   const isBanned = banStatus !== null;
 
+  // Generate app identifier for UTM tracking
+  const appIdentifier = encodeURIComponent(window.location.hostname || 'unknown-app');
+
   if (showProfile) {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Button variant="ghost" onClick={() => setShowProfile(false)}>
-              ← Back to App
+              {t('app.backToApp')}
             </Button>
             <LoginButton />
           </div>
@@ -42,9 +46,9 @@ export function AppShell() {
             </div>
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                All in 1 E service
+                {t('app.title')}
               </h1>
-              <p className="text-xs text-muted-foreground">Earn • Finance • Services</p>
+              <p className="text-xs text-muted-foreground">{t('app.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -68,9 +72,9 @@ export function AppShell() {
             <div className="mb-6 h-24 w-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-4xl shadow-lg">
               A
             </div>
-            <h2 className="text-3xl font-bold mb-4">Welcome All in 1 E service</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('app.welcome')}</h2>
             <p className="text-muted-foreground mb-8 max-w-md">
-              Your all-in-one platform for earning money, managing finances, and accessing digital services.
+              {t('app.welcomeDesc')}
             </p>
             <LoginButton />
           </div>
@@ -79,7 +83,17 @@ export function AppShell() {
 
       <footer className="border-t border-border mt-12 py-6 bg-card/50">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2026. Built with ❤️ using <a href="https://caffeine.ai" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">caffeine.ai</a></p>
+          <p>
+            © {new Date().getFullYear()}. {t('app.footer')} <Heart className="inline h-4 w-4 text-red-500" /> {t('app.footerWith')}{' '}
+            <a
+              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${appIdentifier}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              caffeine.ai
+            </a>
+          </p>
         </div>
       </footer>
     </div>

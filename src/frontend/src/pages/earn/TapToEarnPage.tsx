@@ -4,9 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGetTapToEarnState, useBatchedTapToEarn, useClaimTapToEarnCoins } from '../../hooks/queries/useTapToEarn';
 import { useBanStatus } from '../../hooks/queries/useBanStatus';
-import { loadMonetagScript, showMonetagAd } from '../../utils/ads/monetag';
+import { useTapToEarnAdScheduler } from '../../hooks/useTapToEarnAdScheduler';
+import { TapToEarnAdInterstitial } from '../../components/ads/TapToEarnAdInterstitial';
+import { getAdCreativeByThreshold } from '../../utils/ads/inventory';
 import { Coins, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { t } from '../../i18n';
+import { formatBDT } from '../../utils/currency';
 
 export function TapToEarnPage() {
   const { data: tapState, isLoading } = useGetTapToEarnState();
@@ -14,17 +18,23 @@ export function TapToEarnPage() {
   const { tap, getEffectiveState, flush } = useBatchedTapToEarn();
   const claimCoins = useClaimTapToEarnCoins();
 
-  const [isAdShowing, setIsAdShowing] = useState(false);
-  
   // Track which tap counts have already triggered ads to prevent double triggers
   const triggeredAdsRef = useRef<Set<number>>(new Set());
   const lastCheckedTapCountRef = useRef(0);
 
   const isBanned = banStatus !== null;
 
-  useEffect(() => {
-    loadMonetagScript();
-  }, []);
+  // Ad scheduler
+  const adScheduler = useTapToEarnAdScheduler({
+    onAdComplete: () => {
+      toast.success(t('tapToEarn.adCompleted'));
+    },
+    getAdCreative: () => {
+      const effectiveState = getEffectiveState();
+      const tapCount = effectiveState ? Number(effectiveState.tapCount) : 0;
+      return getAdCreativeByThreshold(tapCount);
+    },
+  });
 
   // Get effective state (optimistic + server)
   const effectiveState = getEffectiveState();
@@ -32,7 +42,7 @@ export function TapToEarnPage() {
   const effectiveCoinBalance = effectiveState ? Number(effectiveState.coinBalance) : 0;
 
   useEffect(() => {
-    if (!effectiveState || isBanned || isAdShowing) return;
+    if (!effectiveState || isBanned || adScheduler.isShowing) return;
 
     const currentTapCount = effectiveTapCount;
     const lastChecked = lastCheckedTapCountRef.current;
@@ -56,19 +66,7 @@ export function TapToEarnPage() {
     if (bigAdThreshold) {
       triggeredAdsRef.current.add(bigAdThreshold);
       lastCheckedTapCountRef.current = currentTapCount;
-      
-      setIsAdShowing(true);
-      showMonetagAd()
-        .then(() => {
-          toast.success('Big ad completed!');
-        })
-        .catch((err) => {
-          console.error('Ad error:', err);
-          toast.error('Ad failed to load');
-        })
-        .finally(() => {
-          setIsAdShowing(false);
-        });
+      adScheduler.scheduleAd();
       return;
     }
 
@@ -77,28 +75,16 @@ export function TapToEarnPage() {
     if (smallAdThreshold) {
       triggeredAdsRef.current.add(smallAdThreshold);
       lastCheckedTapCountRef.current = currentTapCount;
-      
-      setIsAdShowing(true);
-      showMonetagAd()
-        .then(() => {
-          toast.success('Small ad completed!');
-        })
-        .catch((err) => {
-          console.error('Ad error:', err);
-          toast.error('Ad failed to load');
-        })
-        .finally(() => {
-          setIsAdShowing(false);
-        });
+      adScheduler.scheduleAd();
       return;
     }
 
     // Update last checked count
     lastCheckedTapCountRef.current = currentTapCount;
-  }, [effectiveTapCount, isBanned, isAdShowing, effectiveState]);
+  }, [effectiveTapCount, isBanned, adScheduler, effectiveState]);
 
   const handleTap = () => {
-    if (isAdShowing || isBanned) return;
+    if (adScheduler.isShowing || isBanned) return;
     tap();
   };
 
@@ -108,8 +94,9 @@ export function TapToEarnPage() {
     // Flush any pending taps before claiming
     await flush();
     
-    const claimed = await claimCoins.mutateAsync(null);
-    toast.success(`Claimed ${Number(claimed)} coins to your account!`);
+    const claimedCents = await claimCoins.mutateAsync(null);
+    const claimedAmount = formatBDT(claimedCents);
+    toast.success(t('tapToEarn.claimSuccess', { amount: claimedAmount }));
     
     // Clear triggered ads tracking when claiming
     triggeredAdsRef.current.clear();
@@ -121,7 +108,7 @@ export function TapToEarnPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -131,16 +118,16 @@ export function TapToEarnPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Tap to Earn
+          {t('tapToEarn.title')}
         </h3>
-        <p className="text-muted-foreground">Tap the coin to earn rewards!</p>
+        <p className="text-muted-foreground">{t('tapToEarn.description')}</p>
       </div>
 
       {isBanned && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Your account is banned. You cannot tap to earn.
+            {t('tapToEarn.banned')}
           </AlertDescription>
         </Alert>
       )}
@@ -149,13 +136,13 @@ export function TapToEarnPage() {
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center space-y-6">
             <div className="text-center mb-4">
-              <p className="text-sm text-muted-foreground mb-2">Coin Balance</p>
+              <p className="text-sm text-muted-foreground mb-2">{t('tapToEarn.coinBalance')}</p>
               <p className="text-5xl font-bold text-primary">{effectiveCoinBalance}</p>
             </div>
 
             <button
               onClick={handleTap}
-              disabled={isBanned || isAdShowing}
+              disabled={isBanned || adScheduler.isShowing}
               className="relative group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity" />
@@ -166,10 +153,10 @@ export function TapToEarnPage() {
 
             <div className="text-center">
               <p className="text-2xl font-bold mb-1">
-                {isAdShowing ? 'Ad Playing...' : 'Tap the Coin!'}
+                {adScheduler.isShowing ? t('tapToEarn.adPlaying') : t('tapToEarn.tapTheCoin')}
               </p>
               <p className="text-sm text-muted-foreground">
-                Each tap = +1 coin
+                {t('tapToEarn.eachTap')}
               </p>
             </div>
 
@@ -179,7 +166,7 @@ export function TapToEarnPage() {
                 disabled={claimCoins.isPending || isBanned}
                 className="bg-gradient-to-r from-primary to-accent text-white px-8 py-6 text-lg"
               >
-                {claimCoins.isPending ? 'Claiming...' : `Claim ${effectiveCoinBalance} Coins to Account`}
+                {claimCoins.isPending ? t('tapToEarn.claiming') : `${t('tapToEarn.claimCoins')} (${effectiveCoinBalance})`}
               </Button>
             )}
           </div>
@@ -193,12 +180,30 @@ export function TapToEarnPage() {
               <Coins className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="font-medium">Tap to Earn</p>
-              <p className="text-sm text-muted-foreground">Each tap gives you +1 coin instantly</p>
+              <p className="font-medium">{t('tapToEarn.conversionRule')}</p>
+              <p className="text-sm text-muted-foreground">{t('tapToEarn.conversionInfo')}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Coins className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-medium">{t('tapToEarn.title')}</p>
+              <p className="text-sm text-muted-foreground">{t('tapToEarn.tapToEarnInfo')}</p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Ad Interstitial */}
+      {adScheduler.selectedCreative && (
+        <TapToEarnAdInterstitial
+          isOpen={adScheduler.isShowing}
+          creative={adScheduler.selectedCreative}
+          onClose={adScheduler.closeAd}
+        />
+      )}
     </div>
   );
 }
